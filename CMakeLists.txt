@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(ros_opencv_sandbox)
+project(3d_face_features)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -7,6 +7,8 @@ project(ros_opencv_sandbox)
 find_package(catkin REQUIRED COMPONENTS 
         roscpp 
         tf 
+        std_msgs
+        sensor_msgs
         cv_bridge 
         image_transport 
         image_geometry 
@@ -14,6 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies
 find_package(OpenCV REQUIRED)
+
+find_package(dlib REQUIRED)
+include_directories(${dlib_INCLUDE_DIRS})
 
 message(STATUS "OpenCV version: ${OpenCV_VERSION}")
 if(2.9.0 VERSION_GREATER ${OpenCV_VERSION})
@@ -50,10 +55,14 @@ add_definitions(-std=c++11)
 set(LIBS 
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
+    ${dlib_LIBRARIES}
     )
 
+if(TRUE)
+    add_definitions(-DHEAD_POSE_ESTIMATION_DEBUG)
+endif()
 
-add_executable(run src/main.cpp)
+add_executable(run src/main.cpp src/head_pose_estimation.cpp)
 target_link_libraries(run ${LIBS})
 
 #add_library(markers_nodelet src/chilitagsdetector.cpp src/nodelet.cpp)
@@ -72,7 +81,7 @@ install(TARGETS run
 )
 
 install(FILES
-    launch/run.launch
+    launch/3d_facial_features.launch
     launch/run_gscam.launch
 #    launch/gscam_nodelet_pipeline.launch
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
