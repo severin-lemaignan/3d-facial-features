@@ -58,11 +58,11 @@ set(LIBS
     ${dlib_LIBRARIES}
     )
 
-if(TRUE)
+if(FALSE)
     add_definitions(-DHEAD_POSE_ESTIMATION_DEBUG)
 endif()
 
-add_executable(run src/main.cpp src/head_pose_estimation.cpp)
+add_executable(run src/main.cpp src/facialfeaturescloud.cpp src/head_pose_estimation.cpp)
 target_link_libraries(run ${LIBS})
 
 #add_library(markers_nodelet src/chilitagsdetector.cpp src/nodelet.cpp)

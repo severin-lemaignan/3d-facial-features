@@ -8,15 +8,17 @@
 #include <iostream>
 #endif
 
+#include <ros/ros.h>
+
 #include "head_pose_estimation.hpp"
 
 using namespace dlib;
 using namespace std;
 using namespace cv;
 
-inline Point2f toCv(const dlib::point& p)
+inline Point toCv(const dlib::point& p)
 {
-    return Point2f(p.x(), p.y());
+    return Point(p.x(), p.y());
 }
 
 
@@ -33,7 +35,7 @@ HeadPoseEstimation::HeadPoseEstimation(const string& face_detection_model, float
 }
 
 
-void HeadPoseEstimation::update(cv::InputArray _image)
+std::vector<Point> HeadPoseEstimation::update(cv::InputArray _image)
 {
 
     Mat image = _image.getMat();
@@ -57,6 +59,20 @@ void HeadPoseEstimation::update(cv::InputArray _image)
         shapes.push_back(pose_model(current_image, face));
     }
 
+    std::vector<Point> features;
+
+    if (shapes.size() > 0) {
+        if (shapes.size() > 1) ROS_WARN("More that one face detected! Processing only the first one");
+
+        const full_object_detection& d = shapes[0];
+
+        for (size_t i = 0; i < 68; ++i)
+        {
+            features.push_back(toCv(d.part(i)));
+        }
+    }
+
+
 #ifdef HEAD_POSE_ESTIMATION_DEBUG
     // Draws the contours of the face and face features onto the image
     
@@ -64,9 +80,9 @@ void HeadPoseEstimation::update(cv::InputArray _image)
 
     auto color = Scalar(0,128,128);
 
-    for (unsigned long i = 0; i < shapes.size(); ++i)
+    for (unsigned long j = 0; j < shapes.size(); ++j)
     {
-        const full_object_detection& d = shapes[i];
+        const full_object_detection& d = shapes[j];
 
         for (unsigned long i = 1; i <= 16; ++i)
             line(_debug, toCv(d.part(i)), toCv(d.part(i-1)), color, 2, CV_AA);
@@ -103,6 +119,8 @@ void HeadPoseEstimation::update(cv::InputArray _image)
         }
     }
 #endif
+
+    return features;
 }
 
 head_pose HeadPoseEstimation::pose(size_t face_idx) const

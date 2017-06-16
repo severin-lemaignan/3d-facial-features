@@ -6,9 +6,8 @@
         <node pkg="3d_face_features" type="run" name="face_features_3d" output="screen" >
             <param name="face_model" value="$(arg model)" />
             <remap from="rgb" to="rgb/image_rect_color" />
-            <remap from="rgb_camera_info" to="rgb/camera_info" />
-            <remap from="depth" to="depth_registered/sw_registered/image_rect" />
-            <remap from="depth_camera_info" to="depth/camera_info" />
+            <remap from="camera_info" to="rgb/camera_info" />
+            <remap from="depth" to="depth_registered/sw_registered/image_rect_raw" />
         </node>
     </group>
 </launch>
